@@ -25,6 +25,8 @@ from contrib import fslhd
 import transforms3d.affines as affines
 from scipy.ndimage import map_coordinates
 
+import SimpleITK as sitk
+
 from spinalcordtoolbox.types import Coordinate
 from spinalcordtoolbox.utils import extract_fname, mv, run_proc, tmp_create
 
@@ -295,6 +297,10 @@ class Image(object):
         # Case 4: create an image from an existing data array
         elif isinstance(param, (np.ndarray, np.generic)):
             self.data = param
+            self.hdr = hdr.copy() if hdr is not None else nib.Nifti1Header()
+            self.hdr.set_data_shape(self.data.shape)
+        elif isinstance(param, sitk.Image):
+            self.data = sitk.GetArrayFromImage(param)
             self.hdr = hdr.copy() if hdr is not None else nib.Nifti1Header()
             self.hdr.set_data_shape(self.data.shape)
         else:
